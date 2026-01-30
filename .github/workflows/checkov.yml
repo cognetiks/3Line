@@ -1,0 +1,35 @@
+name: "Automated Code Review"
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  scan:
+    name: "Checkov Security & Resilience Scan"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "Run Checkov Scan"
+        id: checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: infrastructure/
+          framework: terraform 
+          # output_format: cli,sarif # Generates detailed logs and GitHub security alerts
+          soft_fail: true # This allows the workflow to finish even if it finds risks, so you can see the report first.
+
+      - name: "Upload Scan Results"
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: results.sarif
