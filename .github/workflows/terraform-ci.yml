@@ -64,7 +64,6 @@ jobs:
     name: "Plan (${{ matrix.environment }})"
     runs-on: ubuntu-latest
     needs: validate
-    if: ${{ vars.AWS_ROLE_ARN != '' && vars.TF_STATE_BUCKET != '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -88,12 +87,14 @@ jobs:
           terraform_wrapper: false
 
       - name: "Configure AWS credentials"
+        if: ${{ vars.AWS_ROLE_ARN != '' && vars.TF_STATE_BUCKET != '' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ matrix.aws_region }}
 
       - name: "Terraform init (remote state)"
+        if: ${{ vars.AWS_ROLE_ARN != '' && vars.TF_STATE_BUCKET != '' }}
         run: |
           terraform init -input=false \
             -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
@@ -102,20 +103,25 @@ jobs:
             -backend-config="dynamodb_table=${{ vars.TF_STATE_LOCK_TABLE }}"
 
       - name: "Terraform plan"
+        if: ${{ vars.AWS_ROLE_ARN != '' && vars.TF_STATE_BUCKET != '' }}
         run: terraform plan -input=false -no-color -out=tfplan
 
       - name: "Upload plan artifact"
+        if: ${{ vars.AWS_ROLE_ARN != '' && vars.TF_STATE_BUCKET != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: tfplan-${{ matrix.environment }}
           path: infrastructure/environments/${{ matrix.environment }}/tfplan
           retention-days: 5
 
+      - name: "Plan skipped (no AWS role/state bucket configured)"
+        if: ${{ vars.AWS_ROLE_ARN == '' || vars.TF_STATE_BUCKET == '' }}
+        run: echo "AWS_ROLE_ARN/TF_STATE_BUCKET repo variables are not set - no AWS credentials used, no plan generated, nothing provisioned."
+
   apply:
     name: "Apply (${{ matrix.environment }})"
     runs-on: ubuntu-latest
     needs: plan
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.AWS_ROLE_ARN != '' && vars.TF_STATE_BUCKET != '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -141,12 +147,14 @@ jobs:
           terraform_wrapper: false
 
       - name: "Configure AWS credentials"
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.AWS_ROLE_ARN != '' && vars.TF_STATE_BUCKET != '' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ matrix.aws_region }}
 
       - name: "Terraform init (remote state)"
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.AWS_ROLE_ARN != '' && vars.TF_STATE_BUCKET != '' }}
         run: |
           terraform init -input=false \
             -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
@@ -155,11 +163,18 @@ jobs:
             -backend-config="dynamodb_table=${{ vars.TF_STATE_LOCK_TABLE }}"
 
       - name: "Download plan artifact"
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.AWS_ROLE_ARN != '' && vars.TF_STATE_BUCKET != '' }}
         uses: actions/download-artifact@v4
         with:
           name: tfplan-${{ matrix.environment }}
           path: infrastructure/environments/${{ matrix.environment }}
 
       - name: "Terraform apply"
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.AWS_ROLE_ARN != '' && vars.TF_STATE_BUCKET != '' }}
         run: terraform apply -input=false -auto-approve tfplan
+
+      - name: "Apply skipped (no AWS role/state bucket configured)"
+        if: ${{ !(github.event_name == 'push' && github.ref == 'refs/heads/main') || vars.AWS_ROLE_ARN == '' || vars.TF_STATE_BUCKET == '' }}
+        run: echo "AWS_ROLE_ARN/TF_STATE_BUCKET repo variables are not set (or this isn't a push to main) - no AWS credentials used, nothing applied or provisioned."
+
 
