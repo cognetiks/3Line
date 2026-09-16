@@ -10,14 +10,14 @@ locals {
 module "vpc" {
   source = "../../modules/vpc"
 
-  name                      = local.name
-  cidr_block                = var.vpc_cidr
-  azs                       = var.azs
-  public_subnet_cidrs       = var.public_subnet_cidrs
-  private_app_subnet_cidrs  = var.private_app_subnet_cidrs
-  private_db_subnet_cidrs   = var.private_db_subnet_cidrs
-  single_nat_gateway        = true
-  tags                      = local.tags
+  name                     = local.name
+  cidr_block               = var.vpc_cidr
+  azs                      = var.azs
+  public_subnet_cidrs      = var.public_subnet_cidrs
+  private_app_subnet_cidrs = var.private_app_subnet_cidrs
+  private_db_subnet_cidrs  = var.private_db_subnet_cidrs
+  single_nat_gateway       = true
+  tags                     = local.tags
 }
 
 module "iam" {
@@ -37,11 +37,11 @@ module "ecr" {
 module "alb" {
   source = "../../modules/alb"
 
-  name               = local.name
-  vpc_id             = module.vpc.vpc_id
-  public_subnet_ids  = module.vpc.public_subnet_ids
-  container_port     = var.container_port
-  tags               = local.tags
+  name              = local.name
+  vpc_id            = module.vpc.vpc_id
+  public_subnet_ids = module.vpc.public_subnet_ids
+  container_port    = var.container_port
+  tags              = local.tags
 }
 
 module "waf" {
@@ -55,19 +55,19 @@ module "waf" {
 module "ecs" {
   source = "../../modules/ecs"
 
-  name                = local.name
-  vpc_id              = module.vpc.vpc_id
-  private_subnet_ids  = module.vpc.private_app_subnet_ids
-  alb_sg_id           = module.alb.alb_sg_id
-  target_group_arn    = module.alb.target_group_arn
-  container_image     = var.container_image
-  container_port      = var.container_port
-  cpu                 = var.ecs_cpu
-  memory              = var.ecs_memory
-  desired_count       = var.ecs_desired_count
-  execution_role_arn  = module.iam.ecs_task_execution_role_arn
-  task_role_arn       = module.iam.ecs_task_role_arn
-  tags                = local.tags
+  name               = local.name
+  vpc_id             = module.vpc.vpc_id
+  private_subnet_ids = module.vpc.private_app_subnet_ids
+  alb_sg_id          = module.alb.alb_sg_id
+  target_group_arn   = module.alb.target_group_arn
+  container_image    = var.container_image
+  container_port     = var.container_port
+  cpu                = var.ecs_cpu
+  memory             = var.ecs_memory
+  desired_count      = var.ecs_desired_count
+  execution_role_arn = module.iam.ecs_task_execution_role_arn
+  task_role_arn      = module.iam.ecs_task_role_arn
+  tags               = local.tags
 }
 
 module "elasticache" {
@@ -115,11 +115,11 @@ module "backup" {
 module "monitoring" {
   source = "../../modules/monitoring"
 
-  name                     = local.name
-  ecs_cluster_name         = module.ecs.cluster_name
-  ecs_service_name         = module.ecs.service_name
-  alb_arn_suffix           = module.alb.alb_arn
-  target_group_arn_suffix  = module.alb.target_group_arn
-  alarm_email              = var.alarm_email
-  tags                     = local.tags
+  name                    = local.name
+  ecs_cluster_name        = module.ecs.cluster_name
+  ecs_service_name        = module.ecs.service_name
+  alb_arn_suffix          = module.alb.alb_arn
+  target_group_arn_suffix = module.alb.target_group_arn
+  alarm_email             = var.alarm_email
+  tags                    = local.tags
 }

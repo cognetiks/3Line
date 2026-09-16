@@ -1,5 +1,5 @@
 locals {
-  name          = "${var.project_name}-${var.environment}"
+  name            = "${var.project_name}-${var.environment}"
   container_image = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.ecr_repository_name}:${var.image_tag}"
   tags = {
     Project     = var.project_name
@@ -82,15 +82,15 @@ module "elasticache" {
 module "rds" {
   source = "../../modules/rds"
 
-  name                    = local.name
-  vpc_id                  = module.vpc.vpc_id
-  subnet_ids              = module.vpc.private_db_subnet_ids
-  allowed_sg_ids          = [module.ecs.service_sg_id]
-  instance_class          = var.db_instance_class
-  is_read_replica         = true
-  source_db_instance_arn  = var.source_db_instance_arn
-  deletion_protection     = false
-  tags                    = local.tags
+  name                   = local.name
+  vpc_id                 = module.vpc.vpc_id
+  subnet_ids             = module.vpc.private_db_subnet_ids
+  allowed_sg_ids         = [module.ecs.service_sg_id]
+  instance_class         = var.db_instance_class
+  is_read_replica        = true
+  source_db_instance_arn = var.source_db_instance_arn
+  deletion_protection    = false
+  tags                   = local.tags
 }
 
 module "backup" {

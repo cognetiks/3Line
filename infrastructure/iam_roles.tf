@@ -56,8 +56,8 @@ resource "aws_iam_role_policy" "ecs_task_policy" {
         Resource = [
           "arn:aws:ssm:*:*:parameter/my-app/*",
           "arn:aws:secretsmanager:*:*:secret:my-app/*",
-          "arn:aws:kms:*:*:key/*" 
-        ] 
+          "arn:aws:kms:*:*:key/*"
+        ]
       }
     ]
   })
