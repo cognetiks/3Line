@@ -41,6 +41,7 @@ module "alb" {
   vpc_id            = module.vpc.vpc_id
   public_subnet_ids = module.vpc.public_subnet_ids
   container_port    = var.container_port
+  certificate_arn   = var.certificate_arn
   tags              = local.tags
 }
 

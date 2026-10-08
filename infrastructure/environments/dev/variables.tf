@@ -111,3 +111,8 @@ variable "ecs_max_count" {
   type    = number
   default = 4
 }
+
+variable "certificate_arn" {
+  type    = string
+  default = null
+}
