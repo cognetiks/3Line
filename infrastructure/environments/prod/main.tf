@@ -104,7 +104,7 @@ module "rds" {
   name                    = local.name
   vpc_id                  = module.vpc.vpc_id
   subnet_ids              = module.vpc.private_db_subnet_ids
-  allowed_sg_ids          = [module.ecs.service_sg_id]
+  allowed_sg_ids          = [module.ecs.service_sg_id, module.bastion.security_group_id]
   instance_class          = var.db_instance_class
   allocated_storage       = var.db_allocated_storage
   multi_az                = var.db_multi_az
@@ -142,4 +142,14 @@ module "monitoring" {
 
 module "inspector" {
   source = "../../modules/inspector"
+}
+
+module "bastion" {
+  source = "../../modules/bastion"
+
+  name       = local.name
+  vpc_id     = module.vpc.vpc_id
+  vpc_cidr   = var.vpc_cidr
+  subnet_ids = module.vpc.private_app_subnet_ids
+  tags       = local.tags
 }
