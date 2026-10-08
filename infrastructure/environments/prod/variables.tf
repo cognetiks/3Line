@@ -117,3 +117,8 @@ variable "dr_region" {
   type    = string
   default = "us-west-2"
 }
+
+variable "ecs_max_count" {
+  type    = number
+  default = 4
+}

@@ -137,3 +137,13 @@ module "bastion" {
   subnet_ids = module.vpc.private_app_subnet_ids
   tags       = local.tags
 }
+
+module "ecs_autoscaling" {
+  source = "../../modules/ecs_autoscaling"
+
+  name         = local.name
+  cluster_name = module.ecs.cluster_name
+  service_name = module.ecs.service_name
+  min_capacity = var.ecs_desired_count
+  max_capacity = max(var.ecs_max_count, var.ecs_desired_count)
+}
