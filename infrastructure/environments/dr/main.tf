@@ -112,3 +112,7 @@ module "monitoring" {
   alarm_email             = var.alarm_email
   tags                    = local.tags
 }
+
+module "inspector" {
+  source = "../../modules/inspector"
+}
