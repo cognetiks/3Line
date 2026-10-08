@@ -94,3 +94,8 @@ variable "alarm_email" {
   type    = string
   default = null
 }
+
+variable "ecs_max_count" {
+  type    = number
+  default = 4
+}

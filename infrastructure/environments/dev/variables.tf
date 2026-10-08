@@ -106,3 +106,8 @@ variable "alarm_email" {
 variable "app_assets_bucket_name" {
   type = string
 }
+
+variable "ecs_max_count" {
+  type    = number
+  default = 4
+}
