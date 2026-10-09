@@ -1,4 +1,5 @@
 resource "aws_sns_topic" "alarms" {
+  #checkov:skip=CKV_AWS_26:CloudWatch alarms cannot publish to a topic encrypted with the AWS managed key
   name = "${var.name}-alarms"
   tags = var.tags
 }

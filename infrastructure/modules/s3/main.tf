@@ -1,4 +1,7 @@
 resource "aws_s3_bucket" "this" {
+  #checkov:skip=CKV2_AWS_62:No event notifications are required
+  #checkov:skip=CKV_AWS_144:Cross region replication is not part of the DR design
+  #checkov:skip=CKV_AWS_145:Default SSE-S3 encryption is used
   bucket = var.bucket_name
 
   tags = var.tags

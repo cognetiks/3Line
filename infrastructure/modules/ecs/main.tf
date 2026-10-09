@@ -10,6 +10,7 @@ resource "aws_ecs_cluster" "this" {
 }
 
 resource "aws_security_group" "service" {
+  #checkov:skip=CKV_AWS_382:Tasks need outbound access for image pulls and AWS APIs and for the database and cache
   name        = "${var.name}-ecs-sg"
   description = "Allow inbound traffic from the ALB only"
   vpc_id      = var.vpc_id
@@ -34,6 +35,7 @@ resource "aws_security_group" "service" {
 }
 
 resource "aws_cloudwatch_log_group" "this" {
+  #checkov:skip=CKV_AWS_158:AWS managed encryption is sufficient for container logs
   name              = "/ecs/${var.name}"
   retention_in_days = var.log_retention_days
 

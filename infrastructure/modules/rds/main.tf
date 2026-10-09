@@ -30,6 +30,10 @@ resource "aws_security_group" "this" {
 }
 
 resource "aws_db_instance" "this" {
+  #checkov:skip=CKV_AWS_157:Multi AZ is set per environment and is enabled in prod
+  #checkov:skip=CKV_AWS_133:Backup retention is set per environment and is 30 days in prod and replicas inherit it
+  #checkov:skip=CKV_AWS_293:Deletion protection is controlled per environment through a variable
+  #checkov:skip=CKV_AWS_353:Performance Insights is not required for this workload
   identifier     = "${var.name}-db"
   instance_class = var.instance_class
 
