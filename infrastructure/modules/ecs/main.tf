@@ -15,6 +15,7 @@ resource "aws_security_group" "service" {
   vpc_id      = var.vpc_id
 
   ingress {
+    description     = "Container port from the ALB only"
     from_port       = var.container_port
     to_port         = var.container_port
     protocol        = "tcp"
@@ -22,6 +23,7 @@ resource "aws_security_group" "service" {
   }
 
   egress {
+    description = "Outbound for image pulls, AWS APIs, database and cache"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
