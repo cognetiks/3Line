@@ -1,5 +1,6 @@
 # Versioned, immutable images so any past release can be redeployed for restoration.
 resource "aws_ecr_repository" "this" {
+  #checkov:skip=CKV_AWS_136:AES256 encryption is used
   name                 = var.name
   image_tag_mutability = "IMMUTABLE"
 

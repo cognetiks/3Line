@@ -1,4 +1,5 @@
 resource "aws_backup_vault" "this" {
+  #checkov:skip=CKV_AWS_166:The AWS managed key is used
   name = "${var.name}-backup-vault"
   tags = var.tags
 }

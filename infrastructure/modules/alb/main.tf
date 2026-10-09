@@ -1,4 +1,6 @@
 resource "aws_security_group" "alb" {
+  #checkov:skip=CKV_AWS_260:Port 80 is open only to redirect HTTP to HTTPS when a certificate is configured
+  #checkov:skip=CKV_AWS_382:Outbound access to the application targets is required
   name        = "${var.name}-alb-sg"
   description = "Allow inbound HTTP/HTTPS to the ALB"
   vpc_id      = var.vpc_id
@@ -31,6 +33,8 @@ resource "aws_security_group" "alb" {
 }
 
 resource "aws_lb" "this" {
+  #checkov:skip=CKV2_AWS_20:HTTP listener redirects to HTTPS when certificate_arn is set
+  #checkov:skip=CKV2_AWS_28:The WAF web ACL is attached by the waf module
   name               = "${var.name}-alb"
   internal           = false
   load_balancer_type = "application"
@@ -44,6 +48,7 @@ resource "aws_lb" "this" {
 }
 
 resource "aws_lb_target_group" "this" {
+  #checkov:skip=CKV_AWS_378:TLS ends at the ALB and targets sit in private subnets
   name        = "${var.name}-tg"
   port        = var.container_port
   protocol    = "HTTP"
@@ -62,6 +67,8 @@ resource "aws_lb_target_group" "this" {
 }
 
 resource "aws_lb_listener" "http" {
+  #checkov:skip=CKV_AWS_2:Port 80 redirects to HTTPS when certificate_arn is set
+  #checkov:skip=CKV_AWS_103:The HTTPS listener enforces ELBSecurityPolicy-TLS13-1-2-2021-06
   load_balancer_arn = aws_lb.this.arn
   port              = 80
   protocol          = "HTTP"

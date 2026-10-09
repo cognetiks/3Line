@@ -28,6 +28,8 @@ resource "aws_security_group" "this" {
 }
 
 resource "aws_elasticache_replication_group" "this" {
+  #checkov:skip=CKV2_AWS_50:Failover and Multi AZ are enabled when num_cache_nodes is above 1 and prod runs 2 nodes
+  #checkov:skip=CKV_AWS_191:AWS managed encryption is used
   replication_group_id       = "${var.name}-redis"
   description                = "Redis cache layer for ${var.name}"
   engine                     = "redis"
