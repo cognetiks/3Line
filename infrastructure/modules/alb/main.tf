@@ -4,6 +4,7 @@ resource "aws_security_group" "alb" {
   vpc_id      = var.vpc_id
 
   ingress {
+    description = "HTTP from the internet, redirected to HTTPS when a certificate is set"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -11,6 +12,7 @@ resource "aws_security_group" "alb" {
   }
 
   ingress {
+    description = "HTTPS from the internet"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
@@ -18,6 +20,7 @@ resource "aws_security_group" "alb" {
   }
 
   egress {
+    description = "Outbound to the application targets"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -35,6 +38,7 @@ resource "aws_lb" "this" {
   subnets            = var.public_subnet_ids
 
   drop_invalid_header_fields = true
+  enable_deletion_protection = var.enable_deletion_protection
 
   tags = var.tags
 }

@@ -40,6 +40,12 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
     id     = "app-assets-lifecycle"
     status = "Enabled"
 
+    filter {}
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+
     transition {
       days          = var.transition_to_ia_days
       storage_class = "STANDARD_IA"

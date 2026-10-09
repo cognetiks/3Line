@@ -9,6 +9,7 @@ resource "aws_security_group" "this" {
   vpc_id      = var.vpc_id
 
   ingress {
+    description     = "Redis from the allowed security groups"
     from_port       = 6379
     to_port         = 6379
     protocol        = "tcp"
@@ -16,6 +17,7 @@ resource "aws_security_group" "this" {
   }
 
   egress {
+    description = "Outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"

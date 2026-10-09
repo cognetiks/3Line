@@ -11,6 +11,7 @@ resource "aws_security_group" "this" {
   vpc_id      = var.vpc_id
 
   ingress {
+    description     = "PostgreSQL from the allowed security groups"
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
@@ -18,6 +19,7 @@ resource "aws_security_group" "this" {
   }
 
   egress {
+    description = "Outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -51,7 +53,8 @@ resource "aws_db_instance" "this" {
   skip_final_snapshot       = var.skip_final_snapshot
   final_snapshot_identifier = var.skip_final_snapshot ? null : "${var.name}-final-snapshot"
 
-  copy_tags_to_snapshot = true
+  copy_tags_to_snapshot      = true
+  auto_minor_version_upgrade = true
 
   tags = var.tags
 }
