@@ -60,5 +60,52 @@ resource "aws_db_instance" "this" {
   copy_tags_to_snapshot      = true
   auto_minor_version_upgrade = true
 
+  enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
+  parameter_group_name            = aws_db_parameter_group.this.name
+  monitoring_interval             = 60
+  monitoring_role_arn             = aws_iam_role.monitoring.arn
+
   tags = var.tags
+}
+
+resource "aws_db_parameter_group" "this" {
+  name   = "${var.name}-pg"
+  family = "postgres${split(".", var.engine_version)[0]}"
+
+  parameter {
+    name  = "rds.force_ssl"
+    value = "1"
+  }
+
+  parameter {
+    name  = "log_statement"
+    value = "ddl"
+  }
+
+  parameter {
+    name  = "log_min_duration_statement"
+    value = "1000"
+  }
+
+  tags = var.tags
+}
+
+resource "aws_iam_role" "monitoring" {
+  name = "${var.name}-rds-monitoring"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Action    = "sts:AssumeRole"
+      Principal = { Service = "monitoring.rds.amazonaws.com" }
+    }]
+  })
+
+  tags = var.tags
+}
+
+resource "aws_iam_role_policy_attachment" "monitoring" {
+  role       = aws_iam_role.monitoring.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
 }

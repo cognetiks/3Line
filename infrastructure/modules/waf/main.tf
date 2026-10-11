@@ -86,3 +86,41 @@ resource "aws_wafv2_web_acl_association" "alb" {
   resource_arn = var.alb_arn
   web_acl_arn  = aws_wafv2_web_acl.this.arn
 }
+
+data "aws_caller_identity" "current" {}
+
+data "aws_region" "current" {}
+
+resource "aws_cloudwatch_log_group" "waf" {
+  #checkov:skip=CKV_AWS_158:AWS managed encryption is sufficient for WAF logs
+  name              = "aws-waf-logs-${var.name}"
+  retention_in_days = 365
+
+  tags = var.tags
+}
+
+resource "aws_cloudwatch_log_resource_policy" "waf" {
+  policy_name = "${var.name}-waf-logging"
+
+  policy_document = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid       = "AWSWAFLogsDelivery"
+      Effect    = "Allow"
+      Principal = { Service = "delivery.logs.amazonaws.com" }
+      Action    = ["logs:CreateLogStream", "logs:PutLogEvents"]
+      Resource  = "${aws_cloudwatch_log_group.waf.arn}:*"
+      Condition = {
+        StringEquals = { "aws:SourceAccount" = data.aws_caller_identity.current.account_id }
+        ArnLike      = { "aws:SourceArn" = "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*" }
+      }
+    }]
+  })
+}
+
+resource "aws_wafv2_web_acl_logging_configuration" "this" {
+  resource_arn            = aws_wafv2_web_acl.this.arn
+  log_destination_configs = [aws_cloudwatch_log_group.waf.arn]
+
+  depends_on = [aws_cloudwatch_log_resource_policy.waf]
+}
