@@ -104,3 +104,8 @@ variable "certificate_arn" {
   type    = string
   default = null
 }
+
+variable "bastion_instance_count" {
+  type    = number
+  default = 2
+}

@@ -126,6 +126,8 @@ module "bastion" {
   vpc_cidr   = var.vpc_cidr
   subnet_ids = module.vpc.private_app_subnet_ids
   tags       = local.tags
+
+  instance_count = var.bastion_instance_count
 }
 
 module "ecs_autoscaling" {
